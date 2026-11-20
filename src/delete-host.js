@@ -126,10 +126,15 @@ function assertIdle(ctx, id) {
   ) {
     refuse('session-busy', '这条对话正在处理任务，请等待任务结束后再删除。')
   }
+  // 0.2.1-rc.3 起 AgentRegistry.isOwnedBy 已移除（运行时树归 subagent
+  // activation）；改用 Session header 的 origin/parentSession 判定父子。
   if (
-    registry
-      .list()
-      .some((child) => child !== agent && registry.isOwnedBy(child.id, agent))
+    registry.list().some(
+      (child) =>
+        child !== agent &&
+        child.session?.header?.origin === 'subagent' &&
+        child.session?.header?.parentSession === id,
+    )
   ) {
     refuse('child-busy', '这条对话还有运行中的子对话，请先等待它们结束。')
   }

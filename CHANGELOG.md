@@ -1,5 +1,11 @@
 # 更新记录
 
+## 1.1.5 · 2026-11-20
+
+- 修复「删除对话」在仍有存活子对话时崩溃：宿主 0.2.1-rc.3 起删除的 `AgentRegistry.isOwnedBy()` 被调用，弹出 `TypeError: registry.isOwnedBy is not a function` 原始报错。改用会话 header 的 `origin === 'subagent'` 与 `parentSession` 判定父子关系，行为与文案不变（`child-busy` 正常拒绝）。
+- 适配核对 DeepSeek Harness 0.2.2-rc.5：折叠、步骤、输入框、右栏、查找、耗时、删除对话的服务名与 `data-*` 标记均在，**未改动任何显示逻辑**。
+- `npm run compat` 自检覆盖到 0.2.2-rc.5 的 app.asar（macOS 需 `--asar` 显式指定）。
+
 ## 1.1.4 · 2026-10-31
 
 - 扫描按变化类型分流：行内变化（流式文字、消息内某个折叠块开关）只重算那一行；行自身的属性变化（流式标记、消息/步骤类型切换）与结构性变化（新消息、加载更早、步骤块、窗口尺寸）仍全量重建，保证分组与耗时控件不会算错。

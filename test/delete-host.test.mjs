@@ -174,7 +174,6 @@ async function fixture(t, io = fs) {
     agents: {
       get: (key) => agents.get(key),
       list: () => [...agents.values()],
-      isOwnedBy: (_key, _owner) => false,
     },
     workspaceRegistry: registry,
     sessionController: { agents: { claims: new Map(), resumes: new Map() } },
@@ -453,11 +452,16 @@ test('mismatched lifecycle metadata refuses an idle live target without touching
 test('runtime-owned child rejects deletion even when the parent is idle', async (t) => {
   const f = await fixture(t)
   const parent = { id: f.id, status: 'idle' }
-  const child = { id: 'chat-child', status: 'idle' }
+  const child = {
+    id: 'chat-child',
+    status: 'idle',
+    session: {
+      id: 'chat-child',
+      header: { origin: 'subagent', parentSession: f.id },
+    },
+  }
   f.agents.set(f.id, parent)
   f.agents.set(child.id, child)
-  f.services.agents.isOwnedBy = (id, owner) =>
-    id === child.id && owner === parent
   await assert.rejects(f.service.deleteConversation(f.id), {
     code: 'fold-polish/child-busy',
   })

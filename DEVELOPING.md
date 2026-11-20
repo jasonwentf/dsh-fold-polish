@@ -49,7 +49,7 @@
 
 `sidebar.workspaces.session.menu.item` 提供原生菜单项，`shell.overlay` 独立持有确认框。确认前不发删除请求；确认后通过已有 connection RPC 载体调用 `foldPolish/deleteConversation`，参数只有对话 ID。服务端仅接受 owner 调用，并在后端重新检查任务、会话占用和持久化格式。禁止接收客户端文件路径或递归删除工作目录。
 
-删除模块按本机 DSH 0.2.1-rc.2 的 JSONL、Cordis、会话和缓存契约核对。宿主没有公开的完整删除 API；关闭已打开对话需要精确匹配该轮生命周期的 effect，无法确认时拒绝删除。格式或宿主契约变更后应先重新验收，不能放宽校验强行删除。服务端相关依赖采用独立注入，不能让删除能力缺失影响显示功能。
+删除模块按本机 DSH 0.2.1-rc.2 的 JSONL、Cordis、会话和缓存契约核对（1.1.5 已复核 0.2.2-rc.5）。宿主没有公开的完整删除 API；关闭已打开对话需要精确匹配该轮生命周期的 effect，无法确认时拒绝删除。格式或宿主契约变更后应先重新验收，不能放宽校验强行删除。服务端相关依赖采用独立注入，不能让删除能力缺失影响显示功能。宿主 0.2.1-rc.3 起 `AgentRegistry.isOwnedBy` 已删除，子对话判定改用 `session.header.origin === 'subagent'` 与 `parentSession`。
 
 只处理独立目录中的 canonical session generation 文件，未知文件、附件、工作目录和子对话保持原样。删除使用 prepared/committed 日志：提交前失败回滚记录和目标归属；提交后清理失败保留恢复标记并向界面返回 `cleanupPending`。重新加载时处理该模块自己的未完成操作。测试只使用临时生成的记录，不连接真实会话删除接口。
 
